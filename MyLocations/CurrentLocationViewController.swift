@@ -32,6 +32,39 @@ class CurrentLocationViewController: UIViewController, CLLocationManagerDelegate
       super.viewDidLoad()
       updateLabels()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+      // Llama al método viewWillAppear de la superclase para realizar tareas adicionales (si es necesario).
+      super.viewWillAppear(animated)
+      
+      // Oculta la barra de navegación del controlador de vista.
+      navigationController?.isNavigationBarHidden = true
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+      // Llama al método viewWillDisappear de la superclase para realizar tareas adicionales (si es necesario).
+      super.viewWillDisappear(animated)
+      
+      // Vuelve a mostrar la barra de navegación del controlador de vista.
+      navigationController?.isNavigationBarHidden = false
+    }
+
+    // MARK: - Navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+      // Verifica si el identificador del segue coincide con "TagLocation".
+      if segue.identifier == "TagLocation" {
+        // Obtiene una referencia al controlador de vista de destino (LocationDetailsViewController).
+        let controller = segue.destination as! LocationDetailsViewController
+        
+        // Pasa la coordenada de la ubicación actual al controlador de vista de destino.
+        controller.coordinate = location!.coordinate
+        
+        // Pasa el placemark (información de ubicación inversa) al controlador de vista de destino.
+        controller.placemark = placemark
+      }
+    }
+
+
 
     // MARK: - Actions
     // Este método se llama cuando se presiona un botón u otra acción para obtener la ubicación del dispositivo.
