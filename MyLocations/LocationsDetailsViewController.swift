@@ -45,7 +45,7 @@ class LocationDetailsViewController: UITableViewController {
         // Método que se ejecuta cuando la vista se carga en memoria
         super.viewDidLoad() // Llama al método viewDidLoad() de la clase base
         
-        // Línea siguiente: Configuración de la interfaz de usuario
+        // Configuración de la interfaz de usuario
         
         // Borra cualquier texto existente en descriptionTextView
         descriptionTextView.text = ""
@@ -70,8 +70,15 @@ class LocationDetailsViewController: UITableViewController {
         
         // Formatea la fecha actual (Date()) y la muestra en dateLabel
         dateLabel.text = format(date: Date())
+        
+        // Configuración para ocultar el teclado cuando se toque en cualquier lugar de la vista
+        let gestureRecognizer = UITapGestureRecognizer(
+          target: self,
+          action: #selector(hideKeyboard)) // Crea un gesto de toque que llama al método hideKeyboard
+        gestureRecognizer.cancelsTouchesInView = false
+        tableView.addGestureRecognizer(gestureRecognizer) // Agrega el gesto a la vista tableView
     }
-    
+
     
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -92,14 +99,24 @@ class LocationDetailsViewController: UITableViewController {
     
     // MARK: - Actions
     @IBAction func done() {
-        // Método asociado a un botón o acción que se ejecuta cuando se presiona el botón "done"
+        // Método llamado cuando se presiona el botón "done"
         
-        // Verifica si hay un controlador de navegación (navigationController)
-        if let navigationController = navigationController {
-            // Si existe un controlador de navegación, realiza una animación para retroceder a la vista anterior
-            navigationController.popViewController(animated: true)
+        // Obtiene una referencia a la vista principal del controlador de navegación
+        guard let mainView = navigationController?.parent?.view else { return }
+        
+        // Crea una vista de Hud (indicador visual)
+        let hudView = HudView.hud(inView: mainView, animated: true)
+        
+        // Configura el texto en la vista de Hud
+        hudView.text = "Tagged"
+        
+        // Después de un retraso de 0.6 segundos, oculta la vista de Hud y retrocede en la navegación
+        afterDelay(0.6) {
+            hudView.hide()
+            self.navigationController?.popViewController(animated: true)
         }
     }
+
     
     @IBAction func cancel() {
         // Método asociado a un botón o acción que se ejecuta cuando se presiona el botón "cancel"
@@ -170,5 +187,53 @@ class LocationDetailsViewController: UITableViewController {
         
         return dateFormatter.string(from: date) // Utiliza el dateFormatter para formatear la fecha y devuelve la cadena resultante
     }
+    
+    @objc func hideKeyboard(_ gestureRecognizer: UIGestureRecognizer) {
+        // Método llamado cuando se realiza un gesto para ocultar el teclado
+        
+        // Obtiene las coordenadas (point) del gesto en relación con la vista tableView
+        let point = gestureRecognizer.location(in: tableView)
+        
+        // Obtiene el indexPath de la celda en la que se realizó el gesto
+        let indexPath = tableView.indexPathForRow(at: point)
+        
+        // Verifica si el indexPath no es nulo y si la celda está en la sección 0 y fila 0
+        if indexPath != nil && indexPath!.section == 0 && indexPath!.row == 0 {
+            // Si el gesto se realizó en la primera celda de la sección 0, no se hace nada
+            return
+        }
+        
+        // Si no se cumple la condición anterior, oculta el teclado en descriptionTextView
+        descriptionTextView.resignFirstResponder()
+    }
+
+    
+    
+    // MARK: - Table View Delegates
+    override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        // Método que se llama antes de seleccionar una celda en la vista tableView
+        
+        // Verifica si la sección de la celda es 0 o 1
+        if indexPath.section == 0 || indexPath.section == 1 {
+            // Si la celda está en la sección 0 o 1, permite la selección
+            return indexPath
+        } else {
+            // Si la celda no está en la sección 0 ni en la sección 1, evita la selección
+            return nil
+        }
+    }
+
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // Método que se llama cuando se selecciona una celda en la vista tableView
+        
+        // Verifica si la celda seleccionada se encuentra en la sección 0 y en la fila 0
+        if indexPath.section == 0 && indexPath.row == 0 {
+            // Si es la primera celda de la sección 0, activa el teclado en descriptionTextView
+            descriptionTextView.becomeFirstResponder()
+        }
+    }
+
+    
     
 }
