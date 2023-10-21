@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreLocation
+import CoreData
 
 class CurrentLocationViewController: UIViewController, CLLocationManagerDelegate{ //Define una clase llamada CurrentLocationViewController que hereda de UIViewController e implementa el protocolo CLLocationManagerDelegate
 
@@ -20,6 +21,7 @@ class CurrentLocationViewController: UIViewController, CLLocationManagerDelegate
     var performingReverseGeocoding = false
     var lastGeocodingError: Error?
     var timer: Timer?
+    var managedObjectContext: NSManagedObjectContext!
     
     @IBOutlet weak var messageLabel: UILabel!
     @IBOutlet weak var latitudeLabel: UILabel!
@@ -61,6 +63,9 @@ class CurrentLocationViewController: UIViewController, CLLocationManagerDelegate
         
         // Pasa el placemark (información de ubicación inversa) al controlador de vista de destino.
         controller.placemark = placemark
+        
+        // Pasa el contexto de objetos gestionados (managedObjectContext) al controlador de vista de destino.
+        controller.managedObjectContext = managedObjectContext
       }
     }
 

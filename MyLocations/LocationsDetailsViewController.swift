@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreLocation
+import CoreData
 
 
 // Declaración de una constante privada llamada dateFormatter que es un objeto DateFormatter
@@ -40,6 +41,8 @@ class LocationDetailsViewController: UITableViewController {
         longitude: 0)
     var placemark: CLPlacemark?
     var categoryName = "No Category"
+    var managedObjectContext: NSManagedObjectContext!
+    var date = Date()
     
     override func viewDidLoad() {
         // Método que se ejecuta cuando la vista se carga en memoria
@@ -69,7 +72,7 @@ class LocationDetailsViewController: UITableViewController {
         }
         
         // Formatea la fecha actual (Date()) y la muestra en dateLabel
-        dateLabel.text = format(date: Date())
+        dateLabel.text = format(date: date)
         
         // Configuración para ocultar el teclado cuando se toque en cualquier lugar de la vista
         let gestureRecognizer = UITapGestureRecognizer(
@@ -99,23 +102,47 @@ class LocationDetailsViewController: UITableViewController {
     
     // MARK: - Actions
     @IBAction func done() {
-        // Método llamado cuando se presiona el botón "done"
-        
-        // Obtiene una referencia a la vista principal del controlador de navegación
+        // Verifica si es posible obtener una referencia a la vista principal del controlador de navegación y su vista principal.
         guard let mainView = navigationController?.parent?.view else { return }
-        
-        // Crea una vista de Hud (indicador visual)
+
+        // Crea una vista de notificación (HudView) y la muestra en la vista principal.
         let hudView = HudView.hud(inView: mainView, animated: true)
-        
-        // Configura el texto en la vista de Hud
-        hudView.text = "Tagged"
-        
-        // Después de un retraso de 0.6 segundos, oculta la vista de Hud y retrocede en la navegación
-        afterDelay(0.6) {
-            hudView.hide()
-            self.navigationController?.popViewController(animated: true)
+        hudView.text = "Tagged" // Establece el texto en la vista de notificación.
+
+        // Crea un objeto Location en el contexto de objetos gestionados (managedObjectContext).
+        let location = Location(context: managedObjectContext)
+
+        // Asigna la descripción de la ubicación ingresada en un campo de texto a la propiedad 'locationDescription' del objeto Location.
+        location.locationDescription = descriptionTextView.text
+
+        // Asigna la categoría de la ubicación a la propiedad 'category' del objeto Location.
+        location.category = categoryName
+
+        // Asigna la latitud y longitud de la ubicación actual a las propiedades 'latitude' y 'longitude' del objeto Location.
+        location.latitude = coordinate.latitude
+        location.longitude = coordinate.longitude
+
+        // Asigna la fecha de la ubicación al objeto Location.
+        location.date = date
+
+        // Asigna el placemark (información de ubicación inversa) al objeto Location.
+        location.placemark = placemark
+
+        // Intenta guardar el objeto Location en el contexto de objetos gestionados.
+        do {
+            try managedObjectContext.save()
+
+            // Después de un retraso de 0.6 segundos, oculta la vista de notificación y vuelve atrás en la navegación.
+            afterDelay(0.6) {
+                hudView.hide()
+                self.navigationController?.popViewController(animated: true)
+            }
+        } catch {
+            // En caso de error al guardar en Core Data, llama a la función 'fatalCoreDataError' para manejar el error.
+            fatalCoreDataError(error)
         }
     }
+
 
     
     @IBAction func cancel() {
