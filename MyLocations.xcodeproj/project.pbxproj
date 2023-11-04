@@ -16,6 +16,8 @@
 		4A1865242AA96FFB003A315C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4A1865222AA96FFB003A315C /* LaunchScreen.storyboard */; };
 		4A86E4862ACF944300942689 /* HudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A86E4852ACF944300942689 /* HudView.swift */; };
 		4A86E4882ACF9B8100942689 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A86E4872ACF9B8100942689 /* Functions.swift */; };
+		4A9765CB2AF5B47C00880A93 /* LocationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9765CA2AF5B47C00880A93 /* LocationsViewController.swift */; };
+		4A9765CD2AF5C9D300880A93 /* LocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9765CC2AF5C9D300880A93 /* LocationCell.swift */; };
 		4A9B51802AE36CBA007097DD /* Location+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9B517E2AE36CBA007097DD /* Location+CoreDataClass.swift */; };
 		4A9B51812AE36CBA007097DD /* Location+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9B517F2AE36CBA007097DD /* Location+CoreDataProperties.swift */; };
 		4ACE4DCA2AC26158007B1CD1 /* LocationsDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ACE4DC92AC26158007B1CD1 /* LocationsDetailsViewController.swift */; };
@@ -34,6 +36,8 @@
 		4A1865252AA96FFB003A315C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4A86E4852ACF944300942689 /* HudView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudView.swift; sourceTree = "<group>"; };
 		4A86E4872ACF9B8100942689 /* Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
+		4A9765CA2AF5B47C00880A93 /* LocationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsViewController.swift; sourceTree = "<group>"; };
+		4A9765CC2AF5C9D300880A93 /* LocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCell.swift; sourceTree = "<group>"; };
 		4A9B517E2AE36CBA007097DD /* Location+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Location+CoreDataClass.swift"; sourceTree = "<group>"; };
 		4A9B517F2AE36CBA007097DD /* Location+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Location+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		4ACE4DC92AC26158007B1CD1 /* LocationsDetailsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsDetailsViewController.swift; sourceTree = "<group>"; };
@@ -73,17 +77,19 @@
 			isa = PBXGroup;
 			children = (
 				4A1865142AA96FFB003A315C /* AppDelegate.swift */,
-				4A1865162AA96FFB003A315C /* SceneDelegate.swift */,
-				4A1865182AA96FFB003A315C /* CurrentLocationViewController.swift */,
-				4A18651A2AA96FFB003A315C /* Main.storyboard */,
 				4A1865202AA96FFB003A315C /* Assets.xcassets */,
-				4A1865222AA96FFB003A315C /* LaunchScreen.storyboard */,
-				4A1865252AA96FFB003A315C /* Info.plist */,
-				4A18651D2AA96FFB003A315C /* MyLocations.xcdatamodeld */,
-				4ACE4DC92AC26158007B1CD1 /* LocationsDetailsViewController.swift */,
 				4ACE4DCB2AC26E98007B1CD1 /* CategoryPickerViewController.swift */,
-				4A86E4852ACF944300942689 /* HudView.swift */,
+				4A1865182AA96FFB003A315C /* CurrentLocationViewController.swift */,
 				4A86E4872ACF9B8100942689 /* Functions.swift */,
+				4A86E4852ACF944300942689 /* HudView.swift */,
+				4A1865252AA96FFB003A315C /* Info.plist */,
+				4A1865222AA96FFB003A315C /* LaunchScreen.storyboard */,
+				4ACE4DC92AC26158007B1CD1 /* LocationsDetailsViewController.swift */,
+				4A9765CA2AF5B47C00880A93 /* LocationsViewController.swift */,
+				4A9765CC2AF5C9D300880A93 /* LocationCell.swift */,
+				4A18651A2AA96FFB003A315C /* Main.storyboard */,
+				4A18651D2AA96FFB003A315C /* MyLocations.xcdatamodeld */,
+				4A1865162AA96FFB003A315C /* SceneDelegate.swift */,
 			);
 			path = MyLocations;
 			sourceTree = "<group>";
@@ -163,7 +169,9 @@
 				4ACE4DCA2AC26158007B1CD1 /* LocationsDetailsViewController.swift in Sources */,
 				4A1865192AA96FFB003A315C /* CurrentLocationViewController.swift in Sources */,
 				4A86E4882ACF9B8100942689 /* Functions.swift in Sources */,
+				4A9765CB2AF5B47C00880A93 /* LocationsViewController.swift in Sources */,
 				4A9B51812AE36CBA007097DD /* Location+CoreDataProperties.swift in Sources */,
+				4A9765CD2AF5C9D300880A93 /* LocationCell.swift in Sources */,
 				4A1865152AA96FFB003A315C /* AppDelegate.swift in Sources */,
 				4A18651F2AA96FFB003A315C /* MyLocations.xcdatamodeld in Sources */,
 				4A9B51802AE36CBA007097DD /* Location+CoreDataClass.swift in Sources */,

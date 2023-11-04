@@ -9,258 +9,261 @@ import UIKit
 import CoreLocation
 import CoreData
 
-
-// Declaración de una constante privada llamada dateFormatter que es un objeto DateFormatter
 private let dateFormatter: DateFormatter = {
-    // Inicia un nuevo objeto DateFormatter utilizando una clausura
-    
-    let formatter = DateFormatter() // Crea una instancia de DateFormatter
-    
-    // Establece el estilo de fecha en medio (por ejemplo, "Sep 25, 2023")
-    formatter.dateStyle = .medium
-    
-    // Establece el estilo de tiempo en corto (por ejemplo, "1:30 PM")
-    formatter.timeStyle = .short
-    
-    return formatter // Devuelve el objeto DateFormatter configurado
-}() // Llama inmediatamente a la clausura para crear el objeto y asignarlo a la constante
-
+  let formatter = DateFormatter()
+  formatter.dateStyle = .medium
+  formatter.timeStyle = .short
+  return formatter
+}()
 
 class LocationDetailsViewController: UITableViewController {
-    @IBOutlet var descriptionTextView: UITextView!
-    @IBOutlet var categoryLabel: UILabel!
-    @IBOutlet var latitudeLabel: UILabel!
-    @IBOutlet var longitudeLabel: UILabel!
-    @IBOutlet var addressLabel: UILabel!
-    @IBOutlet var dateLabel: UILabel!
-    
-    
-    
-    var coordinate = CLLocationCoordinate2D(
-        latitude: 0,
-        longitude: 0)
-    var placemark: CLPlacemark?
-    var categoryName = "No Category"
-    var managedObjectContext: NSManagedObjectContext!
-    var date = Date()
-    
+  @IBOutlet var descriptionTextView: UITextView!
+  @IBOutlet var categoryLabel: UILabel!
+  @IBOutlet var latitudeLabel: UILabel!
+  @IBOutlet var longitudeLabel: UILabel!
+  @IBOutlet var addressLabel: UILabel!
+  @IBOutlet var dateLabel: UILabel!
+
+  var coordinate = CLLocationCoordinate2D(
+    latitude: 0,
+    longitude: 0)
+  var placemark: CLPlacemark?
+  var categoryName = "No Category"
+  var managedObjectContext: NSManagedObjectContext!
+  var date = Date()
+  var descriptionText = ""
+
+    var locationToEdit: Location? {
+        didSet {
+            if let location = locationToEdit {
+                // Cuando se establece la ubicación para editar (locationToEdit), realiza lo siguiente:
+
+                descriptionText = location.locationDescription
+                // Establece la propiedad descriptionText con la descripción de la ubicación a editar.
+
+                categoryName = location.category
+                // Establece la propiedad categoryName con la categoría de la ubicación a editar.
+
+                date = location.date
+                // Establece la propiedad date con la fecha de la ubicación a editar.
+
+                coordinate = CLLocationCoordinate2DMake(location.latitude, location.longitude)
+                // Establece la propiedad coordinate con las coordenadas (latitud y longitud) de la ubicación a editar.
+
+                placemark = location.placemark
+                // Establece la propiedad placemark con el placemark de la ubicación a editar, que contiene información detallada de la dirección, si está disponible.
+            }
+        }
+    }
+
+
     override func viewDidLoad() {
-        // Método que se ejecuta cuando la vista se carga en memoria
-        super.viewDidLoad() // Llama al método viewDidLoad() de la clase base
-        
-        // Configuración de la interfaz de usuario
-        
-        // Borra cualquier texto existente en descriptionTextView
-        descriptionTextView.text = ""
-        
-        // Establece el texto de categoryLabel con el valor de categoryName
+        super.viewDidLoad()
+
+        if let location = locationToEdit {
+            title = "Edit Location"
+            // Si se está editando una ubicación existente, se establece el título de la vista como "Edit Location".
+        }
+
+        descriptionTextView.text = descriptionText
+        // Se establece el texto en la vista de texto (descriptionTextView) con la descripción de la ubicación.
+
         categoryLabel.text = categoryName
-        
-        // Convierte la latitud (coordinate.latitude) en una cadena con 8 decimales y la muestra en latitudeLabel
+        // Se establece el texto en la etiqueta (categoryLabel) con la categoría de la ubicación.
+
         latitudeLabel.text = String(format: "%.8f", coordinate.latitude)
-        
-        // Convierte la longitud (coordinate.longitude) en una cadena con 8 decimales y la muestra en longitudeLabel
+        // Se muestra la latitud en la etiqueta (latitudeLabel), con formato de 8 decimales.
+
         longitudeLabel.text = String(format: "%.8f", coordinate.longitude)
-        
-        // Verifica si placemark tiene un valor (dirección geográfica)
+        // Se muestra la longitud en la etiqueta (longitudeLabel), con formato de 8 decimales.
+
         if let placemark = placemark {
-            // Si hay un placemark, muestra la dirección en addressLabel utilizando la función string(from: placemark)
             addressLabel.text = string(from: placemark)
+            // Si hay un placemark disponible, se muestra la dirección en la etiqueta (addressLabel) utilizando una función llamada `string(from:)`.
         } else {
-            // Si no hay un placemark, muestra "No Address Found" en addressLabel
             addressLabel.text = "No Address Found"
+            // Si no hay un placemark disponible, se muestra un mensaje indicando que no se encontró dirección.
         }
-        
-        // Formatea la fecha actual (Date()) y la muestra en dateLabel
+
         dateLabel.text = format(date: date)
-        
-        // Configuración para ocultar el teclado cuando se toque en cualquier lugar de la vista
+        // Se muestra la fecha formateada en la etiqueta (dateLabel) utilizando una función llamada `format(date:)`.
+
+        // Ocultar el teclado
         let gestureRecognizer = UITapGestureRecognizer(
-          target: self,
-          action: #selector(hideKeyboard)) // Crea un gesto de toque que llama al método hideKeyboard
+            target: self,
+            action: #selector(hideKeyboard))
         gestureRecognizer.cancelsTouchesInView = false
-        tableView.addGestureRecognizer(gestureRecognizer) // Agrega el gesto a la vista tableView
+        tableView.addGestureRecognizer(gestureRecognizer)
+        // Se configura un gesto de toque para ocultar el teclado cuando se toca en cualquier parte de la vista (excepto en los elementos de entrada de texto).
     }
 
-    
-    // MARK: - Navigation
+
+  // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Método llamado antes de que se realice una transición de vista (por ejemplo, cuando se navega a otra vista)
-        
         if segue.identifier == "PickCategory" {
-            // Verifica si la identificación del segue es "PickCategory"
-            
-            // Obtiene una referencia al controlador de vista de destino (CategoryPickerViewController)
+            // Verifica si el identificador del segway es "PickCategory".
+
             let controller = segue.destination as! CategoryPickerViewController
-            
-            // Configura la propiedad selectedCategoryName en el controlador de destino
-            // Usando el valor de la variable categoryName
+            // Obtiene una referencia a la vista de destino (CategoryPickerViewController) a la que se va a realizar la transición.
+
             controller.selectedCategoryName = categoryName
+            // Configura la propiedad `selectedCategoryName` de la vista de destino con el valor actual de la categoría (`categoryName`) de la vista actual.
         }
     }
-    
-    
-    // MARK: - Actions
+
+
+  // MARK: - Actions
     @IBAction func done() {
-        // Verifica si es posible obtener una referencia a la vista principal del controlador de navegación y su vista principal.
         guard let mainView = navigationController?.parent?.view else { return }
+        // Obtiene la vista principal a la que se agregará el mensaje HUD.
 
-        // Crea una vista de notificación (HudView) y la muestra en la vista principal.
         let hudView = HudView.hud(inView: mainView, animated: true)
-        hudView.text = "Tagged" // Establece el texto en la vista de notificación.
+        // Muestra un mensaje HUD (Heads-Up Display) en la vista principal, que proporciona información al usuario.
 
-        // Crea un objeto Location en el contexto de objetos gestionados (managedObjectContext).
-        let location = Location(context: managedObjectContext)
+        let location: Location
+        if let temp = locationToEdit {
+            // Si se está editando una ubicación existente:
 
-        // Asigna la descripción de la ubicación ingresada en un campo de texto a la propiedad 'locationDescription' del objeto Location.
+            hudView.text = "Updated"
+            // Configura el texto del HUD como "Updated" para indicar que se ha actualizado la ubicación.
+            location = temp
+            // Utiliza la ubicación existente que se está editando.
+        } else {
+            hudView.text = "Tagged"
+            // Configura el texto del HUD como "Tagged" para indicar que se ha etiquetado una nueva ubicación.
+            location = Location(context: managedObjectContext)
+            // Crea una nueva ubicación en el contexto de Core Data.
+        }
+
+        // Asigna los valores de la vista de detalle a la ubicación.
         location.locationDescription = descriptionTextView.text
-
-        // Asigna la categoría de la ubicación a la propiedad 'category' del objeto Location.
         location.category = categoryName
-
-        // Asigna la latitud y longitud de la ubicación actual a las propiedades 'latitude' y 'longitude' del objeto Location.
         location.latitude = coordinate.latitude
         location.longitude = coordinate.longitude
-
-        // Asigna la fecha de la ubicación al objeto Location.
         location.date = date
-
-        // Asigna el placemark (información de ubicación inversa) al objeto Location.
         location.placemark = placemark
 
-        // Intenta guardar el objeto Location en el contexto de objetos gestionados.
         do {
             try managedObjectContext.save()
+            // Guarda los cambios en el contexto de Core Data.
 
-            // Después de un retraso de 0.6 segundos, oculta la vista de notificación y vuelve atrás en la navegación.
             afterDelay(0.6) {
                 hudView.hide()
+                // Oculta el mensaje HUD después de un breve retraso.
+
                 self.navigationController?.popViewController(animated: true)
+                // Navega de regreso a la vista anterior (por lo general, la vista de lista de ubicaciones) después de guardar los cambios.
             }
         } catch {
-            // En caso de error al guardar en Core Data, llama a la función 'fatalCoreDataError' para manejar el error.
             fatalCoreDataError(error)
+            // En caso de un error al guardar los cambios en Core Data, se maneja de manera adecuada, mostrando un mensaje de error.
         }
     }
 
-
-    
     @IBAction func cancel() {
-        // Método asociado a un botón o acción que se ejecuta cuando se presiona el botón "cancel"
-        
-        // Verifica si hay un controlador de navegación (navigationController)
-        if let navigationController = navigationController {
-            // Si existe un controlador de navegación, realiza una animación para retroceder a la vista anterior
-            navigationController.popViewController(animated: true)
-        }
+        navigationController?.popViewController(animated: true)
+        // Navega de regreso a la vista anterior (generalmente la vista de lista de ubicaciones) de manera animada.
     }
-    
-    
+
+
     @IBAction func categoryPickerDidPickCategory(_ segue: UIStoryboardSegue) {
-        // Método llamado cuando se selecciona una categoría en la vista de selección de categoría y se regresa a esta vista
+        // Este método se llama cuando el usuario elige una categoría desde la vista de selección de categorías y regresa a la vista de detalle de ubicación.
         
-        // Obtiene una referencia al controlador de vista de origen (CategoryPickerViewController)
         let controller = segue.source as! CategoryPickerViewController
+        // Obtiene una referencia a la vista de origen (CategoryPickerViewController) de la que se regresó.
         
-        // Actualiza la variable categoryName con la categoría seleccionada en el controlador de origen
         categoryName = controller.selectedCategoryName
-        
-        // Actualiza el texto en categoryLabel con la nueva categoryName
-        categoryLabel.text = categoryName
+        // Actualiza la propiedad categoryName con la categoría seleccionada en la vista de selección
     }
-    
-    
-    // MARK: - Helper Methods
+
+  // MARK: - Helper Methods
     func string(from placemark: CLPlacemark) -> String {
-        // Esta función toma un objeto CLPlacemark y lo convierte en una cadena formateada de dirección
-        
-        var text = "" // Inicializa una cadena vacía para construir la dirección
-        
-        // Comprueba si placemark.subThoroughfare tiene un valor y agrega a la cadena
+        // Este método toma un placemark (objeto CLPlacemark) y lo convierte en una cadena de texto que representa la dirección.
+
+        var text = ""
         if let tmp = placemark.subThoroughfare {
             text += tmp + " "
+            // Agrega el subThoroughfare (número de edificio o calle) seguido de un espacio, si está disponible.
         }
-        
-        // Comprueba si placemark.thoroughfare tiene un valor y agrega a la cadena
         if let tmp = placemark.thoroughfare {
             text += tmp + ", "
+            // Agrega el thoroughfare (nombre de la calle), seguido de una coma y un espacio, si está disponible.
         }
-        
-        // Comprueba si placemark.locality tiene un valor y agrega a la cadena
         if let tmp = placemark.locality {
             text += tmp + ", "
+            // Agrega la locality (localidad o ciudad), seguida de una coma y un espacio, si está disponible.
         }
-        
-        // Comprueba si placemark.administrativeArea tiene un valor y agrega a la cadena
         if let tmp = placemark.administrativeArea {
             text += tmp + " "
+            // Agrega el administrativeArea (estado o provincia) seguido de un espacio, si está disponible.
         }
-        
-        // Comprueba si placemark.postalCode tiene un valor y agrega a la cadena
         if let tmp = placemark.postalCode {
             text += tmp + ", "
+            // Agrega el postalCode (código postal), seguido de una coma y un espacio, si está disponible.
         }
-        
-        // Comprueba si placemark.country tiene un valor y agrega a la cadena
         if let tmp = placemark.country {
             text += tmp
+            // Agrega el country (país), si está disponible.
         }
-        
-        return text // Devuelve la cadena resultante que representa la dirección
-    }
-    
-    func format(date: Date) -> String {
-        // Esta función toma una fecha y la formatea como una cadena utilizando el dateFormatter
-        
-        return dateFormatter.string(from: date) // Utiliza el dateFormatter para formatear la fecha y devuelve la cadena resultante
-    }
-    
-    @objc func hideKeyboard(_ gestureRecognizer: UIGestureRecognizer) {
-        // Método llamado cuando se realiza un gesto para ocultar el teclado
-        
-        // Obtiene las coordenadas (point) del gesto en relación con la vista tableView
-        let point = gestureRecognizer.location(in: tableView)
-        
-        // Obtiene el indexPath de la celda en la que se realizó el gesto
-        let indexPath = tableView.indexPathForRow(at: point)
-        
-        // Verifica si el indexPath no es nulo y si la celda está en la sección 0 y fila 0
-        if indexPath != nil && indexPath!.section == 0 && indexPath!.row == 0 {
-            // Si el gesto se realizó en la primera celda de la sección 0, no se hace nada
-            return
-        }
-        
-        // Si no se cumple la condición anterior, oculta el teclado en descriptionTextView
-        descriptionTextView.resignFirstResponder()
+        return text
+        // Retorna la cadena de texto resultante que representa la dirección completa.
     }
 
-    
-    
-    // MARK: - Table View Delegates
-    override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        // Método que se llama antes de seleccionar una celda en la vista tableView
-        
-        // Verifica si la sección de la celda es 0 o 1
+    func format(date: Date) -> String {
+        // Este método toma un objeto Date y lo formatea como una cadena de texto.
+
+        return dateFormatter.string(from: date)
+        // Utiliza el formateador de fecha (dateFormatter) para convertir el objeto Date en una cadena de texto formateada y la retorna.
+    }
+
+    @objc func hideKeyboard(_ gestureRecognizer: UIGestureRecognizer) {
+        // Este método se llama cuando el usuario toca en cualquier parte de la vista para ocultar el teclado si está visible.
+
+        let point = gestureRecognizer.location(in: tableView)
+        // Obtiene la posición donde se realizó el toque en relación a la vista de tabla (tableView).
+
+        let indexPath = tableView.indexPathForRow(at: point)
+        // Obtiene el índice de la fila en la que se realizó el toque, si corresponde.
+
+        if indexPath != nil && indexPath!.section == 0 &&
+            indexPath!.row == 0 {
+            return
+            // Si el toque se realizó en la primera sección y primera fila (por ejemplo, en la descripción), no se oculta el teclado y se sale del método.
+        }
+        descriptionTextView.resignFirstResponder()
+        // Si el toque no se realizó en la vista de descripción, se oculta el teclado al hacer que la vista de texto de descripción (descriptionTextView) deje de ser el primer respondedor, lo que oculta el teclado si está visible.
+    }
+
+
+  // MARK: - Table View Delegates
+    override func tableView(
+        _ tableView: UITableView,
+        willSelectRowAt indexPath: IndexPath
+    ) -> IndexPath? {
+        // Este método se utiliza para controlar si una fila específica en la vista de tabla se puede seleccionar o no.
+
         if indexPath.section == 0 || indexPath.section == 1 {
-            // Si la celda está en la sección 0 o 1, permite la selección
+            // Si la fila pertenece a la sección 0 o 1, se permite la selección.
             return indexPath
         } else {
-            // Si la celda no está en la sección 0 ni en la sección 1, evita la selección
+            // En caso contrario, se evita la selección y se devuelve nil.
             return nil
         }
     }
 
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // Método que se llama cuando se selecciona una celda en la vista tableView
-        
-        // Verifica si la celda seleccionada se encuentra en la sección 0 y en la fila 0
+    override func tableView(
+        _ tableView: UITableView,
+        didSelectRowAt indexPath: IndexPath
+    ) {
+        // Este método se llama cuando el usuario selecciona una fila en la vista de tabla.
+
         if indexPath.section == 0 && indexPath.row == 0 {
-            // Si es la primera celda de la sección 0, activa el teclado en descriptionTextView
+            // Si la fila seleccionada pertenece a la sección 0 y es la fila 0 (por ejemplo, la fila de la descripción):
+
             descriptionTextView.becomeFirstResponder()
+            // Hace que la vista de texto de descripción (descriptionTextView) sea el primer respondedor, lo que muestra el teclado y permite la edición del texto en la vista de descripción.
         }
     }
 
-    
-    
 }
