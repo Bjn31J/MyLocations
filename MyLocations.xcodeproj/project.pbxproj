@@ -16,6 +16,7 @@
 		4A1865242AA96FFB003A315C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4A1865222AA96FFB003A315C /* LaunchScreen.storyboard */; };
 		4A86E4862ACF944300942689 /* HudView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A86E4852ACF944300942689 /* HudView.swift */; };
 		4A86E4882ACF9B8100942689 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A86E4872ACF9B8100942689 /* Functions.swift */; };
+		4A96C9A82B004D4600334FCF /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A96C9A72B004D4600334FCF /* MapViewController.swift */; };
 		4A9765CB2AF5B47C00880A93 /* LocationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9765CA2AF5B47C00880A93 /* LocationsViewController.swift */; };
 		4A9765CD2AF5C9D300880A93 /* LocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9765CC2AF5C9D300880A93 /* LocationCell.swift */; };
 		4A9B51802AE36CBA007097DD /* Location+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A9B517E2AE36CBA007097DD /* Location+CoreDataClass.swift */; };
@@ -36,6 +37,7 @@
 		4A1865252AA96FFB003A315C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4A86E4852ACF944300942689 /* HudView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HudView.swift; sourceTree = "<group>"; };
 		4A86E4872ACF9B8100942689 /* Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
+		4A96C9A72B004D4600334FCF /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		4A9765CA2AF5B47C00880A93 /* LocationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationsViewController.swift; sourceTree = "<group>"; };
 		4A9765CC2AF5C9D300880A93 /* LocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationCell.swift; sourceTree = "<group>"; };
 		4A9B517E2AE36CBA007097DD /* Location+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Location+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -82,6 +84,7 @@
 				4A1865182AA96FFB003A315C /* CurrentLocationViewController.swift */,
 				4A86E4872ACF9B8100942689 /* Functions.swift */,
 				4A86E4852ACF944300942689 /* HudView.swift */,
+				4A96C9A72B004D4600334FCF /* MapViewController.swift */,
 				4A1865252AA96FFB003A315C /* Info.plist */,
 				4A1865222AA96FFB003A315C /* LaunchScreen.storyboard */,
 				4ACE4DC92AC26158007B1CD1 /* LocationsDetailsViewController.swift */,
@@ -171,6 +174,7 @@
 				4A86E4882ACF9B8100942689 /* Functions.swift in Sources */,
 				4A9765CB2AF5B47C00880A93 /* LocationsViewController.swift in Sources */,
 				4A9B51812AE36CBA007097DD /* Location+CoreDataProperties.swift in Sources */,
+				4A96C9A82B004D4600334FCF /* MapViewController.swift in Sources */,
 				4A9765CD2AF5C9D300880A93 /* LocationCell.swift in Sources */,
 				4A1865152AA96FFB003A315C /* AppDelegate.swift in Sources */,
 				4A18651F2AA96FFB003A315C /* MyLocations.xcdatamodeld in Sources */,

@@ -41,6 +41,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
             controller2.managedObjectContext = managedObjectContext
             // Asigna el contexto de Core Data (managedObjectContext) al segundo controlador de vista.
+            
+            // Third tab
+            navController = tabViewControllers[2] as! UINavigationController
+            // Obtiene la tercera vista de navegación desde el controlador de pestañas.
+
+            let controller3 = navController.viewControllers.first as! MapViewController
+            // Obtiene el primer controlador de vista (viewController) dentro de la tercera vista de navegación.
+
+            controller3.managedObjectContext = managedObjectContext
+            // Asigna el contexto de Core Data (`managedObjectContext`) al controlador de vista de mapa (MapViewController).
+
         }
 
         listenForFatalCoreDataNotifications()
