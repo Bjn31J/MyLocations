@@ -23,6 +23,11 @@ class LocationDetailsViewController: UITableViewController {
   @IBOutlet var longitudeLabel: UILabel!
   @IBOutlet var addressLabel: UILabel!
   @IBOutlet var dateLabel: UILabel!
+  @IBOutlet var imageView: UIImageView!
+  @IBOutlet var addPhotoLabel: UILabel!
+  @IBOutlet var imageHeight: NSLayoutConstraint!
+    
+
 
   var coordinate = CLLocationCoordinate2D(
     latitude: 0,
@@ -32,6 +37,8 @@ class LocationDetailsViewController: UITableViewController {
   var managedObjectContext: NSManagedObjectContext!
   var date = Date()
   var descriptionText = ""
+  var image: UIImage?
+  var observer: Any!
 
     var locationToEdit: Location? {
         didSet {
@@ -59,11 +66,24 @@ class LocationDetailsViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+//nuevo
         if let location = locationToEdit {
-            title = "Edit Location"
-            // Si se está editando una ubicación existente, se establece el título de la vista como "Edit Location".
+            // Si hay una ubicación para editar.
+
+            title = "Edit Location" // Establece el título de la vista como "Edit Location".
+
+            if location.hasPhoto {
+                // Si la ubicación tiene una foto asociada.
+
+                if let theImage = location.photoImage {
+                    // Si se puede obtener la imagen de la ubicación.
+
+                    show(image: theImage)
+                    // Muestra la imagen en la interfaz de usuario utilizando la función show().
+                }
+            }
         }
+
 
         descriptionTextView.text = descriptionText
         // Se establece el texto en la vista de texto (descriptionTextView) con la descripción de la ubicación.
@@ -95,6 +115,7 @@ class LocationDetailsViewController: UITableViewController {
         gestureRecognizer.cancelsTouchesInView = false
         tableView.addGestureRecognizer(gestureRecognizer)
         // Se configura un gesto de toque para ocultar el teclado cuando se toca en cualquier parte de la vista (excepto en los elementos de entrada de texto).
+        listenForBackgroundNotification()
     }
 
 
@@ -133,6 +154,7 @@ class LocationDetailsViewController: UITableViewController {
             // Configura el texto del HUD como "Tagged" para indicar que se ha etiquetado una nueva ubicación.
             location = Location(context: managedObjectContext)
             // Crea una nueva ubicación en el contexto de Core Data.
+            location.photoID = nil
         }
 
         // Asigna los valores de la vista de detalle a la ubicación.
@@ -142,6 +164,31 @@ class LocationDetailsViewController: UITableViewController {
         location.longitude = coordinate.longitude
         location.date = date
         location.placemark = placemark
+        
+        // Save image
+        if let image = image {
+            // Si hay una imagen.
+
+            if !location.hasPhoto {
+                // Si la ubicación no tiene una foto asociada.
+
+                location.photoID = Location.nextPhotoID() as NSNumber
+                // Asigna un nuevo identificador de foto a la ubicación utilizando la función nextPhotoID().
+            }
+
+            if let data = image.jpegData(compressionQuality: 0.5) {
+                // Si se puede obtener datos JPEG de la imagen con una calidad del 50%.
+
+                do {
+                    try data.write(to: location.photoURL, options: .atomic)
+                    // Intenta escribir los datos de la imagen en la URL de la foto de la ubicación.
+                } catch {
+                    // Si hay un error al escribir el archivo, imprime el error.
+                    print("Error writing file: \(error)")
+                }
+            }
+        }
+
 
         do {
             try managedObjectContext.save()
@@ -233,6 +280,73 @@ class LocationDetailsViewController: UITableViewController {
         descriptionTextView.resignFirstResponder()
         // Si el toque no se realizó en la vista de descripción, se oculta el teclado al hacer que la vista de texto de descripción (descriptionTextView) deje de ser el primer respondedor, lo que oculta el teclado si está visible.
     }
+    
+    func show(image: UIImage) {
+        // Muestra la imagen en la interfaz de usuario.
+
+        imageView.image = image
+        // Asigna la imagen al objeto imageView.
+
+        imageView.isHidden = false
+        // Hace visible el objeto imageView.
+
+        addPhotoLabel.text = ""
+        // Limpia el texto en el objeto addPhotoLabel.
+        
+        //imageHeight.constant = 260
+
+        // Verificar si imageHeight es nil antes de asignar el valor
+        if let height = imageHeight {
+            // Si imageHeight no es nil.
+
+            height.constant = 260
+            // Establece la altura del objeto imageHeight en 260.
+        } else {
+            // Manejar el caso en el que imageHeight sea nil.
+            print("imageHeight is nil")
+        }
+
+        tableView.reloadData()
+        // Recarga los datos de la tabla para reflejar los cambios.
+    }
+
+    
+    func listenForBackgroundNotification() {
+        // Establece un observador para la notificación de entrada en segundo plano de la aplicación.
+
+        observer = NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            // Escucha la notificación de entrada en segundo plano de la aplicación.
+            object: nil,
+            queue: OperationQueue.main) { [weak self] _ in
+            // Usa una captura débil para evitar posibles problemas de retención circular.
+
+            if let weakSelf = self {
+                // Si weakSelf no es nil.
+
+                if weakSelf.presentedViewController != nil {
+                    // Si hay un controlador de vista presentado.
+
+                    weakSelf.dismiss(animated: false, completion: nil)
+                    // Descarta el controlador de vista presentado de manera animada.
+                }
+
+                weakSelf.descriptionTextView.resignFirstResponder()
+                // Retira el foco del teclado para el objeto descriptionTextView.
+            }
+        }
+    }
+
+    deinit {
+        // Se llama cuando la instancia de la clase está siendo desinicializada.
+
+        print("*** deinit \(self)")
+        // Imprime un mensaje de depuración indicando que la instancia está siendo desinicializada.
+
+        NotificationCenter.default.removeObserver(observer!)
+        // Elimina el observador previamente configurado para evitar problemas de retención.
+    }
+
 
 
   // MARK: - Table View Delegates
@@ -251,19 +365,154 @@ class LocationDetailsViewController: UITableViewController {
         }
     }
 
-
     override func tableView(
         _ tableView: UITableView,
         didSelectRowAt indexPath: IndexPath
     ) {
-        // Este método se llama cuando el usuario selecciona una fila en la vista de tabla.
+        // Se llama cuando se selecciona una celda en la tabla.
 
         if indexPath.section == 0 && indexPath.row == 0 {
-            // Si la fila seleccionada pertenece a la sección 0 y es la fila 0 (por ejemplo, la fila de la descripción):
+            // Si se selecciona la primera celda de la primera sección.
 
             descriptionTextView.becomeFirstResponder()
-            // Hace que la vista de texto de descripción (descriptionTextView) sea el primer respondedor, lo que muestra el teclado y permite la edición del texto en la vista de descripción.
+            // Hace que el objeto descriptionTextView obtenga el foco del teclado.
+        } else if indexPath.section == 1 && indexPath.row == 0 {
+            // Si se selecciona la primera celda de la segunda sección.
+
+            tableView.deselectRow(at: indexPath, animated: true)
+            // Deselecciona la celda de manera animada.
+
+            pickPhoto()
+            // Llama al método pickPhoto para seleccionar una foto.
         }
     }
 
+
 }
+
+extension LocationDetailsViewController:
+UIImagePickerControllerDelegate,
+UINavigationControllerDelegate {
+    // Mark: - Image Helper Methods
+    func takePhotoWithCamera() {
+        // Crea un controlador de vista para seleccionar una imagen de la cámara.
+
+        let imagePicker = UIImagePickerController()
+        // Crea una instancia del controlador de vista para seleccionar una imagen.
+
+        imagePicker.sourceType = .camera
+        // Establece la fuente del controlador de vista para la cámara.
+
+        imagePicker.delegate = self
+        // Establece el delegado del controlador de vista como la instancia actual.
+
+        imagePicker.allowsEditing = true
+        // Permite la edición de la imagen seleccionada.
+
+        present(imagePicker, animated: true, completion: nil)
+        // Presenta el controlador de vista de selección de imagen de manera animada.
+    }
+
+    func choosePhotoFromLibrary() {
+        // Crea un controlador de vista para seleccionar una imagen de la biblioteca de fotos.
+
+        let imagePicker = UIImagePickerController()
+        // Crea una instancia del controlador de vista para seleccionar una imagen.
+
+        imagePicker.sourceType = .photoLibrary
+        // Establece la fuente del controlador de vista para la biblioteca de fotos.
+
+        imagePicker.delegate = self
+        // Establece el delegado del controlador de vista como la instancia actual.
+
+        imagePicker.allowsEditing = true
+        // Permite la edición de la imagen seleccionada.
+
+        present(imagePicker, animated: true, completion: nil)
+        // Presenta el controlador de vista de selección de imagen de manera animada.
+    }
+
+    
+    func pickPhoto() {
+        // Verifica si la cámara está disponible en el dispositivo.
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            // Si la cámara está disponible, muestra el menú de selección de foto.
+            showPhotoMenu()
+        } else {
+            // Si la cámara no está disponible, elige una foto de la biblioteca de fotos.
+            choosePhotoFromLibrary()
+        }
+    }
+
+    
+    func showPhotoMenu() {
+        // Crea un controlador de alerta con un estilo de hoja de acciones.
+
+        let alert = UIAlertController(
+            title: nil,
+            message: nil,
+            preferredStyle: .actionSheet)
+        // Crea una instancia de UIAlertController con un estilo de hoja de acciones.
+
+        let actCancel = UIAlertAction(
+            title: "Cancel",
+            style: .cancel,
+            handler: nil)
+        // Crea una acción de cancelar.
+
+        alert.addAction(actCancel)
+        // Agrega la acción de cancelar al controlador de alerta.
+
+        let actPhoto = UIAlertAction(
+            title: "Take Photo",
+            style: .default) { _ in
+                self.takePhotoWithCamera()
+            }
+        // Crea una acción para tomar una foto.
+
+        alert.addAction(actPhoto)
+        // Agrega la acción de tomar foto al controlador de alerta.
+
+        let actLibrary = UIAlertAction(
+            title: "Choose From Library",
+            style: .default) { _ in
+                self.choosePhotoFromLibrary()
+            }
+        // Crea una acción para elegir una foto de la biblioteca.
+
+        alert.addAction(actLibrary)
+        // Agrega la acción de elegir foto de la biblioteca al controlador de alerta.
+
+        present(alert, animated: true, completion: nil)
+        // Presenta el controlador de alerta de manera animada.
+    }
+
+    
+    // MARK: - Image Picker Delegates
+    func imagePickerController(
+        _ picker: UIImagePickerController,
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+    ) {
+        // Obtiene la imagen editada del diccionario de información.
+        image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage
+
+        // Verifica si la imagen es válida.
+        if let theImage = image {
+            // Muestra la imagen.
+            show(image: theImage)
+        }
+
+        // Descarta el controlador de selección de imágenes de manera animada.
+        dismiss(animated: true, completion: nil)
+    }
+
+
+    func imagePickerControllerDidCancel(
+        _ picker: UIImagePickerController
+    ) {
+        // Descarta el controlador de selección de imágenes de manera animada.
+        dismiss(animated: true, completion: nil)
+    }
+
+}
+                                

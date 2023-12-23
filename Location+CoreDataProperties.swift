@@ -37,6 +37,10 @@ extension Location {
 
     @NSManaged public var placemark: CLPlacemark?
     // Declara una propiedad llamada "placemark" que es administrada por Core Data y puede contener objetos de tipo CLPlacemark.
+    
+    @NSManaged public var photoID: NSNumber?
+    // Identificador de la foto asociado a la ubicación. Puede ser nulo si no hay foto.
+    
 }
 
 

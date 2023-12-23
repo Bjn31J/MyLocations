@@ -10,6 +10,7 @@ import UIKit
 class LocationCell: UITableViewCell {
   @IBOutlet var descriptionLabel: UILabel!
   @IBOutlet var addressLabel: UILabel!
+  @IBOutlet var photoImageView: UIImageView!
   
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -62,7 +63,25 @@ class LocationCell: UITableViewCell {
                 location.longitude)
         }
         // Configura el texto de la etiqueta `addressLabel` con la información de dirección si está disponible en la ubicación. Si no hay información de dirección, muestra las coordenadas de latitud y longitud.
+        
+        photoImageView.image = thumbnail(for: location)
+        // Asigna la imagen de la miniatura generada para la ubicación a la vista de imagen (photoImageView).
+
+        
     }
+    
+    func thumbnail(for location: Location) -> UIImage {
+        // Verifica si la ubicación tiene una foto y si la imagen de la foto existe.
+        if location.hasPhoto, let image = location.photoImage {
+            // Devuelve la imagen redimensionada con límites de tamaño de 52x52.
+            return image.resized(withBounds: CGSize(width: 52, height: 52))
+        }
+        
+        // Si no hay foto o la imagen de la foto no existe, devuelve una UIImage vacía.
+        return UIImage()
+    }
+
+
 
     
 }

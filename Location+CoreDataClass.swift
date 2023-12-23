@@ -38,6 +38,59 @@ public class Location: NSManagedObject, MKAnnotation {
         return category
         // Retorna la categoría como el subtítulo de la ubicación.
     }
+    
+    var hasPhoto: Bool {
+        // Devuelve true si la propiedad opcional photoID tiene un valor, indicando que hay una foto asociada.
+        return photoID != nil
+    }
+
+    
+    var photoURL: URL {
+        // Asegura que la propiedad opcional photoID tenga un valor, lo que indica que hay una foto asociada.
+        assert(photoID != nil, "No photo ID set")
+        
+        // Crea el nombre de archivo utilizando el ID de la foto.
+        let filename = "Photo-\(photoID!.intValue).jpg"
+        
+        // Devuelve la URL completa de la foto utilizando el directorio de documentos de la aplicación.
+        return applicationDocumentsDirectory.appendingPathComponent(filename)
+    }
+
+    
+    var photoImage: UIImage? {
+        // Devuelve una instancia de UIImage utilizando el contenido del archivo en la URL de la foto.
+        return UIImage(contentsOfFile: photoURL.path)
+    }
+
+    
+    class func nextPhotoID() -> Int {
+        // Accede a UserDefaults para obtener el ID de la foto actual almacenado.
+        let userDefaults = UserDefaults.standard
+        let currentID = userDefaults.integer(forKey: "PhotoID") + 1
+        
+        // Incrementa el ID de la foto y lo guarda en UserDefaults para su uso futuro.
+        userDefaults.set(currentID, forKey: "PhotoID")
+        
+        // Devuelve el nuevo ID de la foto.
+        return currentID
+    }
+
+    
+    func removePhotoFile() {
+        // Verifica si la ubicación tiene una foto antes de intentar eliminarla.
+        if hasPhoto {
+            do {
+                // Intenta eliminar el archivo de la foto en el directorio de documentos de la aplicación.
+                try FileManager.default.removeItem(at: photoURL)
+            } catch {
+                // Maneja cualquier error que ocurra durante la eliminación del archivo.
+                print("Error removing file: \(error)")
+            }
+        }
+    }
+
+    
+    
 }
 
 

@@ -180,6 +180,9 @@ class LocationsViewController: UITableViewController {
 
             let location = fetchedResultsController.object(at: indexPath)
             // Obtiene el objeto de ubicación correspondiente a la fila que se va a eliminar.
+            
+            //nuevo
+            location.removePhotoFile()
 
             managedObjectContext.delete(location)
             // Marca el objeto de ubicación para su eliminación en el contexto de datos administrado (Core Data).
