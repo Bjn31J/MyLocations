@@ -12,14 +12,20 @@ class LocationCell: UITableViewCell {
   @IBOutlet var addressLabel: UILabel!
   @IBOutlet var photoImageView: UIImageView!
   
+    // Sobrescribe el método awakeFromNib de la clase actual (posiblemente una celda de tabla o una vista de tabla personalizada)
     override func awakeFromNib() {
+        // Llama al método awakeFromNib de la clase base
         super.awakeFromNib()
-        // Llamada al método awakeFromNib de la superclase para realizar cualquier inicialización necesaria.
-
-        // Puedes agregar código de inicialización personalizado aquí si es necesario.
-        // Por ejemplo, configurar las propiedades visuales de la celda o realizar otras tareas de configuración.
+        
+        // Aplica esquinas redondeadas a la imagen (assumiendo que photoImageView es una instancia de UIImageView)
+        photoImageView.layer.cornerRadius = photoImageView.bounds.size.width / 2
+        
+        // Permite que las esquinas redondeadas de la imagen se muestren correctamente recortando cualquier contenido que se desborde
+        photoImageView.clipsToBounds = true
+        
+        // Establece la separación del borde izquierdo de la celda (o vista) para que haya un espacio antes del contenido
+        separatorInset = UIEdgeInsets(top: 0, left: 82, bottom: 0, right: 0)
     }
-
 
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
@@ -30,46 +36,41 @@ class LocationCell: UITableViewCell {
     }
 
   // MARK: - Helper Method
+    //nuevo
+    
+    // Función para configurar la apariencia de una celda o vista con información de ubicación
     func configure(for location: Location) {
-        // Esta función se utiliza para configurar la apariencia de una celda de ubicación con los datos de una ubicación específica.
-
+        // Verifica si la descripción de la ubicación está vacía
         if location.locationDescription.isEmpty {
+            // Si está vacía, establece el texto de la etiqueta de descripción como "(No Description)"
             descriptionLabel.text = "(No Description)"
         } else {
+            // Si no está vacía, establece el texto de la etiqueta de descripción como la descripción de la ubicación
             descriptionLabel.text = location.locationDescription
         }
-        // Configura el texto de la etiqueta `descriptionLabel` con la descripción de la ubicación. Si la descripción está vacía, muestra "(No Description)".
 
+        // Verifica si hay un placemark asociado con la ubicación
         if let placemark = location.placemark {
-            // Si la ubicación tiene información de placemark (información de dirección).
-
+            // Si hay un placemark, construye una cadena formateada con información de dirección
             var text = ""
-            if let tmp = placemark.subThoroughfare {
-                text += tmp + " "
-            }
-            if let tmp = placemark.thoroughfare {
-                text += tmp + ", "
-            }
-            if let tmp = placemark.locality {
-                text += tmp
-            }
+            text.add(text: placemark.subThoroughfare)
+            text.add(text: placemark.thoroughfare, separatedBy: " ")
+            text.add(text: placemark.locality, separatedBy: ", ")
+            
+            // Establece el texto de la etiqueta de dirección con la información de dirección formateada
             addressLabel.text = text
         } else {
-            // Si la ubicación no tiene información de placemark (información de dirección).
-
+            // Si no hay placemark, establece el texto de la etiqueta de dirección con las coordenadas de latitud y longitud
             addressLabel.text = String(
                 format: "Lat: %.8f, Long: %.8f",
                 location.latitude,
                 location.longitude)
         }
-        // Configura el texto de la etiqueta `addressLabel` con la información de dirección si está disponible en la ubicación. Si no hay información de dirección, muestra las coordenadas de latitud y longitud.
         
+        // Establece la imagen de la imagen de la ubicación utilizando la miniatura generada
         photoImageView.image = thumbnail(for: location)
-        // Asigna la imagen de la miniatura generada para la ubicación a la vista de imagen (photoImageView).
-
-        
     }
-    
+
     func thumbnail(for location: Location) -> UIImage {
         // Verifica si la ubicación tiene una foto y si la imagen de la foto existe.
         if location.hasPhoto, let image = location.photoImage {
@@ -78,7 +79,7 @@ class LocationCell: UITableViewCell {
         }
         
         // Si no hay foto o la imagen de la foto no existe, devuelve una UIImage vacía.
-        return UIImage()
+        return UIImage(named: "No Photo")!
     }
 
 

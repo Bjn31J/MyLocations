@@ -224,37 +224,33 @@ class LocationDetailsViewController: UITableViewController {
     }
 
   // MARK: - Helper Methods
+    // Definición de la función 'string' que toma un objeto CLPlacemark y devuelve una cadena formateada
     func string(from placemark: CLPlacemark) -> String {
-        // Este método toma un placemark (objeto CLPlacemark) y lo convierte en una cadena de texto que representa la dirección.
-
-        var text = ""
-        if let tmp = placemark.subThoroughfare {
-            text += tmp + " "
-            // Agrega el subThoroughfare (número de edificio o calle) seguido de un espacio, si está disponible.
-        }
-        if let tmp = placemark.thoroughfare {
-            text += tmp + ", "
-            // Agrega el thoroughfare (nombre de la calle), seguido de una coma y un espacio, si está disponible.
-        }
-        if let tmp = placemark.locality {
-            text += tmp + ", "
-            // Agrega la locality (localidad o ciudad), seguida de una coma y un espacio, si está disponible.
-        }
-        if let tmp = placemark.administrativeArea {
-            text += tmp + " "
-            // Agrega el administrativeArea (estado o provincia) seguido de un espacio, si está disponible.
-        }
-        if let tmp = placemark.postalCode {
-            text += tmp + ", "
-            // Agrega el postalCode (código postal), seguido de una coma y un espacio, si está disponible.
-        }
-        if let tmp = placemark.country {
-            text += tmp
-            // Agrega el country (país), si está disponible.
-        }
-        return text
-        // Retorna la cadena de texto resultante que representa la dirección completa.
+        // Variable local 'line' que se utilizará para construir la cadena final
+        var line = ""
+        
+        // Llama a la función 'add' con el componente 'subThoroughfare' del placemark y agrega el resultado a 'line'
+        line.add(text: placemark.subThoroughfare)
+        
+        // Llama a la función 'add' con el componente 'thoroughfare' del placemark, separado por un espacio, y agrega el resultado a 'line'
+        line.add(text: placemark.thoroughfare, separatedBy: " ")
+        
+        // Llama a la función 'add' con el componente 'locality' del placemark, separado por una coma y un espacio, y agrega el resultado a 'line'
+        line.add(text: placemark.locality, separatedBy: ", ")
+        
+        // Llama a la función 'add' con el componente 'administrativeArea' del placemark, separado por una coma y un espacio, y agrega el resultado a 'line'
+        line.add(text: placemark.administrativeArea, separatedBy: ", ")
+        
+        // Llama a la función 'add' con el componente 'postalCode' del placemark, separado por un espacio, y agrega el resultado a 'line'
+        line.add(text: placemark.postalCode, separatedBy: " ")
+        
+        // Llama a la función 'add' con el componente 'country' del placemark, separado por una coma y un espacio, y agrega el resultado a 'line'
+        line.add(text: placemark.country, separatedBy: ", ")
+        
+        // Devuelve la cadena final formada por la concatenación de todos los componentes en 'line'
+        return line
     }
+
 
     func format(date: Date) -> String {
         // Este método toma un objeto Date y lo formatea como una cadena de texto.
